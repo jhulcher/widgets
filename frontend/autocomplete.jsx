@@ -7,7 +7,6 @@ var Autocomplete = React.createClass({
 
   render: function() {
     var currentString = this.state.searchString;
-    console.log(this.state.searchString);
     var filteredNames = this.props.names.filter(function(name) {
       return name.match(currentString);
     });

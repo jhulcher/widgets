@@ -15,12 +15,33 @@ var WeatherClock = React.createClass({
       this.setState({
         longitude: response.coords.longitude,
         latitude: response.coords.latitude
-      }, this.getWeather);
+      });
+      this.getWeather();
     }.bind(this));
   },
 
   componentWillUnmount: function () {
     clearInterval(this.intervalID);
+  },
+
+
+  getWeather: function () {
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+      if (request.readyState === XMLHttpRequest.DONE ) {
+        if (request.status === 200) {
+          var weatherObj = JSON.parse(request.responseText);
+          var currentWeather = weatherObj.weather[0].description;
+          var temp = weatherObj.main.temp.toString();
+          this.setState({weather: currentWeather, temperature: temp});
+        }
+      }
+    }.bind(this);
+    var url = "http://api.openweathermap.org/data/2.5/weather?lat=" + this.state.latitude + "&lon=" + this.state.longitude;
+    var appID = "645c5d39c7603f17e23fcaffcea1a3c1";
+    url = url + "&appid=" + appID;
+    request.open("GET", url, true);
+    request.send();
   },
 
   render: function () {
@@ -30,28 +51,9 @@ var WeatherClock = React.createClass({
         <p>Longitude : {this.state.longitude}</p>
         <p>Latitude : {this.state.latitude}</p>
         <p>Weather : {this.state.weather}</p>
+        <p>Kelvin Temperature : {this.state.temperature}</p>
       </div>
     );
-  },
-
-  getWeather: function () {
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function() {
-      if (request.readyState === XMLHttpRequest.DONE ) {
-        if (request.status === 200) {
-          var jobj = JSON.parse(request.responseText);
-          var currentWeather = jobj.weather;
-          var temp = JSON.parse(request.responseText).main.temp;
-          this.setState({weather: currentWeather, temperature: temp});
-          debugger
-        }
-      }
-    }.bind(this);
-    var url = "http://api.openweathermap.org/data/2.5/weather?lat=" + this.state.latitude + "&lon=" + this.state.longitude;
-    var appID = "645c5d39c7603f17e23fcaffcea1a3c1";
-    url = url + "&appid=" + appID;
-    request.open("GET", url, true);
-    request.send();
   }
 });
 
